@@ -5,6 +5,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -113,18 +114,18 @@ public class JavaScriptFrameworkTests {
 		prepareData();
 
 		mockMvc.perform(delete("/{id}", 666))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("$", is("Exception")));
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$", is("Exception")));
 		
 		for (Iterator<JavaScriptFramework> iterator = repository.findAll().iterator(); iterator.hasNext();) {
 			long id = iterator.next().getId();
 			mockMvc.perform(delete("/{id}", id))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$", is("Deleted")));
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", is("Deleted")));
 			
 			mockMvc.perform(delete("/{id}", id))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$", is("Exception")));
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$", is("Exception")));
 		}
 	}
 
@@ -144,9 +145,15 @@ public class JavaScriptFrameworkTests {
 		framework.setDeprecationDate(new GregorianCalendar(2020, 1, 1).getTime());
 		framework.setHypeLevel("Just great");
 		framework.addVersion("2.0");
-		repository.save(framework);
+		mockMvc.perform(put("/update").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(framework)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", is("Updated")));
 		assert ( framework.getLastVersion().equals(repository.findByName("ReactJS").getLastVersion()) );
 		assert ( framework.getDeprecationDate().equals(repository.findByName("ReactJS").getDeprecationDate()) );
 		assert ( framework.getHypeLevel().equals(repository.findByName("ReactJS").getHypeLevel()) );
+		framework.setName("Whatever");
+		mockMvc.perform(put("/update").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(framework)))
+		.andExpect(status().isBadRequest())
+		.andExpect(jsonPath("$", is("Framework not found")));
 	}
 }

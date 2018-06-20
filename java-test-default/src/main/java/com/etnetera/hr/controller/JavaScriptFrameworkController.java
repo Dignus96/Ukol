@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,26 +38,33 @@ public class JavaScriptFrameworkController extends EtnRestController {
 	}
 
 	@PostMapping("/add")
-	public ResponseEntity<Errors> add( @RequestBody JavaScriptFramework framework, BindingResult bindingResult ) {
+	public ResponseEntity<Errors> add(@RequestBody JavaScriptFramework framework, BindingResult bindingResult) {
 		try {
 			repository.add(framework, bindingResult);
-		}
-		catch (MethodArgumentNotValidException ex) {
+		} catch (MethodArgumentNotValidException ex) {
 			return this.handleValidationException(ex);
 		}
 		return ResponseEntity.ok().body(null);
 	}
-	
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> delete(@PathVariable("id") Long id) {
 		try {
 			repository.deleteById(id);
-		}
-		catch (Exception  ex) {
-			if(ex instanceof IllegalArgumentException)
+		} catch (Exception ex) {
+			if (ex instanceof IllegalArgumentException)
 				return ResponseEntity.badRequest().body("IllegalArgumentException");
 			return ResponseEntity.badRequest().body("Exception");
 		}
 		return ResponseEntity.ok().body("Deleted");
+	}
+
+	@PutMapping("/update")
+	public ResponseEntity<String> update(@RequestBody JavaScriptFramework framework) {
+		if ( repository.findByName(framework.getName()) == null )
+			return ResponseEntity.badRequest().body("Framework not found");
+		repository.deleteById(repository.findByName(framework.getName()).getId());
+		repository.save(framework);
+		return ResponseEntity.ok().body("Updated");
 	}
 }
