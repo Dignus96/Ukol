@@ -28,11 +28,12 @@ public interface JavaScriptFrameworkRepository extends CrudRepository<JavaScript
 		this.save(framework);
 	}
 
-	default public JavaScriptFramework findByName( String name ) { //findAll???
+	default public JavaScriptFramework findByName( String name ) {
 		for (Iterator<JavaScriptFramework> iterator = this.findAll().iterator(); iterator.hasNext();) {
-			if ( iterator.next().getName() == name )
-				return iterator.next();
+			JavaScriptFramework framework = iterator.next();
+			if ( framework.getName().equals(name) )
+				return framework;
 		}
-		return new JavaScriptFramework();
+		return null;
 	}
 }

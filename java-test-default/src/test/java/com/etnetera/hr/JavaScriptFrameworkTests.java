@@ -9,7 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,7 +92,7 @@ public class JavaScriptFrameworkTests {
 	}
 	
 	@Test
-	public void addFramework() throws JsonProcessingException, Exception {
+	public void addFrameworkTest() throws JsonProcessingException, Exception {
 		prepareData();
 		JavaScriptFramework framework = new JavaScriptFramework("Blah");
 		
@@ -106,7 +109,7 @@ public class JavaScriptFrameworkTests {
 	}
 	
 	@Test
-	public void deleteFrameworkByID() throws JsonProcessingException, Exception {
+	public void deleteFrameworkByIDTest() throws Exception {
 		prepareData();
 
 		mockMvc.perform(delete("/{id}", 666))
@@ -124,10 +127,26 @@ public class JavaScriptFrameworkTests {
 			.andExpect(jsonPath("$", is("Exception")));
 		}
 	}
-	
+
 	@Test
-	public void findFrameworkByName() throws JsonProcessingException, Exception {
+	public void findFrameworkByNameTest() throws Exception {
 		prepareData();
-		repository.findByName("");
-	}	
+		assert ( repository.findByName("") == null );
+		assert ( repository.findByName("NotExisting") == null );
+		assert ( repository.findByName("ReactJS").getName().equals("ReactJS") );
+	}
+
+	@Test
+	public void changeFrameworkTest() throws Exception {
+		prepareData();
+		JavaScriptFramework framework = repository.findByName("ReactJS");
+		framework.setVersion(new TreeSet<String>(Arrays.asList("1.0", "1.1", "1.2")));
+		framework.setDeprecationDate(new GregorianCalendar(2020, 1, 1).getTime());
+		framework.setHypeLevel("Just great");
+		framework.addVersion("2.0");
+		repository.save(framework);
+		assert ( framework.getLastVersion().equals(repository.findByName("ReactJS").getLastVersion()) );
+		assert ( framework.getDeprecationDate().equals(repository.findByName("ReactJS").getDeprecationDate()) );
+		assert ( framework.getHypeLevel().equals(repository.findByName("ReactJS").getHypeLevel()) );
+	}
 }
