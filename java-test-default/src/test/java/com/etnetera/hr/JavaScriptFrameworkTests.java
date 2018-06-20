@@ -44,40 +44,33 @@ public class JavaScriptFrameworkTests {
 	private JavaScriptFrameworkRepository repository;
 
 	private void prepareData() throws Exception {
+		repository.deleteAll();
 		JavaScriptFramework react = new JavaScriptFramework("ReactJS");
 		JavaScriptFramework vue = new JavaScriptFramework("Vue.js");
-		JavaScriptFramework m = new JavaScriptFramework("Meteor.js");
 
 		repository.save(react);
 		repository.save(vue);
-		repository.save(m);
+		repository.save(new JavaScriptFramework("Meteor.js"));
 	}
 
 	@Test
 	public void frameworksTest() throws Exception {
 		prepareData();
-		System.out.println("<<<<<<<<<<<<<<<<<<<Test1>>>>>>>>>>>>>>>>>>>");
 		mockMvc.perform(get("/frameworks"))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
 				.andExpect(jsonPath("$", hasSize(3)))
-				.andExpect(jsonPath("$[0].id", is(1))).andExpect(jsonPath("$[0].name", is("ReactJS")))
-				.andExpect(jsonPath("$[1].id", is(2))).andExpect(jsonPath("$[1].name", is("Vue.js")))
-				.andExpect(jsonPath("$[2].id", is(3))).andExpect(jsonPath("$[2].name", is("Meteor.js")));
+				.andExpect(jsonPath("$[0].name", is("ReactJS")))
+				.andExpect(jsonPath("$[1].name", is("Vue.js")))
+				.andExpect(jsonPath("$[2].name", is("Meteor.js")));
+
 		repository.deleteAll();
-		System.out.println("<<<<<<<<<<<<<<<<<<<Deleted>>>>>>>>>>>>>>>>>>>");
 		mockMvc.perform(get("/frameworks"))
 		.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
 		.andExpect(jsonPath("$", hasSize(0)));
-		System.out.println("<<<<<<<<<<<<<<<<<<<EndOfTest>>>>>>>>>>>>>>>>>>>");
-		
-/*	    resultActions.andDo(print());
-	    resultActions.andExpect(status().isOk());*/
 	}
 	
-/*	@Test
+	@Test
 	public void addFrameworkInvalid() throws JsonProcessingException, Exception {
-		
-		System.out.println("<<<<<<<<<<<<<<<<<<<Started>>>>>>>>>>>>>>>>>>>");
 		
 		JavaScriptFramework framework = new JavaScriptFramework();
 		mockMvc.perform(post("/add").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(framework)))
@@ -85,12 +78,33 @@ public class JavaScriptFrameworkTests {
 				.andExpect(jsonPath("$.errors[0].field", is("name")))
 				.andExpect(jsonPath("$.errors[0].message", is("NotEmpty")));
 
-				framework.setName("verylongnameofthejavascriptframeworkjavaisthebest");
+		framework.setName("verylongnameofthejavascriptframeworkjavaisthebest");
 		mockMvc.perform(post("/add").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(framework)))
 				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors", hasSize(1)))
 				.andExpect(jsonPath("$.errors[0].field", is("name")))
 				.andExpect(jsonPath("$.errors[0].message", is("Size")));
+	}
+	
+/*	@Test
+	public void addFramework() throws JsonProcessingException, Exception {
+		prepareData();
+		JavaScriptFramework framework = new JavaScriptFramework("Blah");
 		
+		mockMvc.perform(post("/add").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(framework)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.errors", hasSize(0)));
+		
+		mockMvc.perform(get("/frameworks"))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$", hasSize(4)))
+				.andExpect(jsonPath("$[0].name", is("ReactJS")))
+				.andExpect(jsonPath("$[1].name", is("Vue.js")))
+				.andExpect(jsonPath("$[2].name", is("Meteor.js")))
+				.andExpect(jsonPath("$[3].name", is("Blah")));
 	}*/
 	
+	@Test
+	public void findFrameworkByName() throws JsonProcessingException, Exception {
+		prepareData();
+		repository.findByName("");
+	}	
 }
