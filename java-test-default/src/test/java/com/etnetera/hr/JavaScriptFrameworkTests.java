@@ -2,11 +2,14 @@ package com.etnetera.hr;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Iterator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,13 +88,13 @@ public class JavaScriptFrameworkTests {
 				.andExpect(jsonPath("$.errors[0].message", is("Size")));
 	}
 	
-/*	@Test
+	@Test
 	public void addFramework() throws JsonProcessingException, Exception {
 		prepareData();
 		JavaScriptFramework framework = new JavaScriptFramework("Blah");
 		
 		mockMvc.perform(post("/add").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsBytes(framework)))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.errors", hasSize(0)));
+				.andExpect(status().isOk());
 		
 		mockMvc.perform(get("/frameworks"))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -100,7 +103,27 @@ public class JavaScriptFrameworkTests {
 				.andExpect(jsonPath("$[1].name", is("Vue.js")))
 				.andExpect(jsonPath("$[2].name", is("Meteor.js")))
 				.andExpect(jsonPath("$[3].name", is("Blah")));
-	}*/
+	}
+	
+	@Test
+	public void deleteFrameworkByID() throws JsonProcessingException, Exception {
+		prepareData();
+
+		mockMvc.perform(delete("/{id}", 666))
+		.andExpect(status().isBadRequest())
+		.andExpect(jsonPath("$", is("Exception")));
+		
+		for (Iterator<JavaScriptFramework> iterator = repository.findAll().iterator(); iterator.hasNext();) {
+			long id = iterator.next().getId();
+			mockMvc.perform(delete("/{id}", id))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", is("Deleted")));
+			
+			mockMvc.perform(delete("/{id}", id))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$", is("Exception")));
+		}
+	}
 	
 	@Test
 	public void findFrameworkByName() throws JsonProcessingException, Exception {

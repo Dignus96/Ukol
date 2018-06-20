@@ -1,19 +1,12 @@
 package com.etnetera.hr.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.etnetera.hr.data.JavaScriptFramework;
-import com.etnetera.hr.rest.Errors;
-import com.etnetera.hr.rest.ValidationError;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Spring data repository interface used for accessing the data in database.
