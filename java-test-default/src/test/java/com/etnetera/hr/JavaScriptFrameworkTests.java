@@ -138,7 +138,7 @@ public class JavaScriptFrameworkTests {
 	}
 
 	@Test
-	public void changeFrameworkTest() throws Exception {
+	public void updateFrameworkTest() throws Exception {
 		prepareData();
 		JavaScriptFramework framework = repository.findByName("ReactJS");
 		framework.setVersion(new TreeSet<String>(Arrays.asList("1.0", "1.1", "1.2")));
